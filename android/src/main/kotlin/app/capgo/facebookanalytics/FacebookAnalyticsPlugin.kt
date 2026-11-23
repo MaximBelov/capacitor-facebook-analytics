@@ -149,6 +149,49 @@ class FacebookAnalyticsPlugin : Plugin() {
     }
 
     @PluginMethod
+    fun setAutoInitEnabled(call: PluginCall) {
+        val enabled = call.getBoolean("enabled")
+
+        if (enabled == null) {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        try {
+            FacebookSdk.setAutoInitEnabled(enabled)
+            call.resolve()
+        } catch (error: FacebookException) {
+            call.reject(error.message ?: "Failed to set Facebook auto initialization")
+        }
+    }
+
+    @PluginMethod
+    fun setAutoLogAppEventsEnabled(call: PluginCall) {
+        val enabled = call.getBoolean("enabled")
+
+        if (enabled == null) {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun setAdvertiserIDCollectionEnabled(call: PluginCall) {
+        val enabled = call.getBoolean("enabled")
+
+        if (enabled == null) {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        FacebookSdk.setAdvertiserIDCollectionEnabled(enabled)
+        call.resolve()
+    }
+
+    @PluginMethod
     fun getPluginVersion(call: PluginCall) {
         val ret = JSObject().apply {
             put("version", implementation.getPluginVersion())

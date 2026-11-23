@@ -223,6 +223,9 @@ If Meta SDK setup is missing, event calls can still reject with a clear error, b
 * [`enableAdvertiserTracking()`](#enableadvertisertracking)
 * [`disableAdvertiserTracking()`](#disableadvertisertracking)
 * [`getAdvertiserTrackingStatus()`](#getadvertisertrackingstatus)
+* [`setAutoInitEnabled(...)`](#setautoinitenabled)
+* [`setAutoLogAppEventsEnabled(...)`](#setautologappeventsenabled)
+* [`setAdvertiserIDCollectionEnabled(...)`](#setadvertiseridcollectionenabled)
 * [`getPluginVersion()`](#getpluginversion)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
@@ -341,6 +344,78 @@ On iOS 17 and above this reflects App Tracking Transparency authorization.
 --------------------
 
 
+### setAutoInitEnabled(...)
+
+```typescript
+setAutoInitEnabled(options: SetEnabledOptions) => Promise<void>
+```
+
+Allow or stop the SDK's automatic initialization.
+
+On Android this calls `FacebookSdk.setAutoInitEnabled()`. The SDK stores the
+value, so it overrides `com.facebook.sdk.AutoInitEnabled` on later launches.
+`true` fully initializes the SDK now (server communication starts) without
+logging an app activation; `false` takes effect from the next launch, because
+a fully initialized SDK cannot be shut down in the running process.
+
+On iOS the plugin never initializes the SDK by itself, so `true` initializes
+it now (`ApplicationDelegate.shared.initializeSDK()`, no activation) and
+`false` has nothing to switch off. Call it on every launch where
+initialization is allowed.
+
+Use it to withdraw consent: unlike `initAppEvents()`, it can be called with
+`false`.
+
+| Param         | Type                                                            |
+| ------------- | --------------------------------------------------------------- |
+| **`options`** | <code><a href="#setenabledoptions">SetEnabledOptions</a></code> |
+
+--------------------
+
+
+### setAutoLogAppEventsEnabled(...)
+
+```typescript
+setAutoLogAppEventsEnabled(options: SetEnabledOptions) => Promise<void>
+```
+
+Allow or stop the app events the SDK logs by itself (app install and app
+activation).
+
+Sets `FacebookSdk.setAutoLogAppEventsEnabled()` on Android and
+`Settings.shared.isAutoLogAppEventsEnabled` on iOS. Both SDKs store the value,
+so it overrides `com.facebook.sdk.AutoLogAppEventsEnabled` /
+`FacebookAutoLogAppEventsEnabled` on later launches.
+
+| Param         | Type                                                            |
+| ------------- | --------------------------------------------------------------- |
+| **`options`** | <code><a href="#setenabledoptions">SetEnabledOptions</a></code> |
+
+--------------------
+
+
+### setAdvertiserIDCollectionEnabled(...)
+
+```typescript
+setAdvertiserIDCollectionEnabled(options: SetEnabledOptions) => Promise<void>
+```
+
+Allow or stop collection of the advertising identifier (the Google
+advertising ID on Android, the IDFA on iOS).
+
+Sets `FacebookSdk.setAdvertiserIDCollectionEnabled()` on Android and
+`Settings.shared.isAdvertiserIDCollectionEnabled` on iOS. Both SDKs store the
+value. On Android this is the same switch `enableAdvertiserTracking()` and
+`disableAdvertiserTracking()` set; on iOS it is separate from advertiser
+tracking, which iOS 17 and above read from App Tracking Transparency.
+
+| Param         | Type                                                            |
+| ------------- | --------------------------------------------------------------- |
+| **`options`** | <code><a href="#setenabledoptions">SetEnabledOptions</a></code> |
+
+--------------------
+
+
 ### getPluginVersion()
 
 ```typescript
@@ -381,6 +456,13 @@ Returns the platform implementation version marker.
 | Prop         | Type                 | Description                         |
 | ------------ | -------------------- | ----------------------------------- |
 | **`status`** | <code>boolean</code> | Current advertiser tracking status. |
+
+
+#### SetEnabledOptions
+
+| Prop          | Type                 | Description                                                |
+| ------------- | -------------------- | ---------------------------------------------------------- |
+| **`enabled`** | <code>boolean</code> | `true` to switch the setting on, `false` to switch it off. |
 
 
 #### PluginVersionResult
