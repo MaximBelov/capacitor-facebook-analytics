@@ -31,6 +31,18 @@ export class FacebookAnalyticsWeb extends WebPlugin implements FacebookAnalytics
     };
   }
 
+  async setAutoInitEnabled(): Promise<void> {
+    throw this.unimplemented('Facebook Analytics is not available on web.');
+  }
+
+  async setAutoLogAppEventsEnabled(): Promise<void> {
+    throw this.unimplemented('Facebook Analytics is not available on web.');
+  }
+
+  async setAdvertiserIDCollectionEnabled(): Promise<void> {
+    throw this.unimplemented('Facebook Analytics is not available on web.');
+  }
+
   async getPluginVersion(): Promise<PluginVersionResult> {
     return {
       version: 'web',

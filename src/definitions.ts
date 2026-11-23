@@ -77,6 +77,13 @@ export interface PluginVersionResult {
   version: string;
 }
 
+export interface SetEnabledOptions {
+  /**
+   * `true` to switch the setting on, `false` to switch it off.
+   */
+  enabled: boolean;
+}
+
 /**
  * Facebook App Events analytics bridge.
  */
@@ -141,6 +148,48 @@ export interface FacebookAnalyticsPlugin {
    * On iOS 17 and above this reflects App Tracking Transparency authorization.
    */
   getAdvertiserTrackingStatus(): Promise<AdvertiserTrackingStatusResult>;
+
+  /**
+   * Allow or stop the SDK's automatic initialization.
+   *
+   * On Android this calls `FacebookSdk.setAutoInitEnabled()`. The SDK stores the
+   * value, so it overrides `com.facebook.sdk.AutoInitEnabled` on later launches.
+   * `true` fully initializes the SDK now (server communication starts) without
+   * logging an app activation; `false` takes effect from the next launch, because
+   * a fully initialized SDK cannot be shut down in the running process.
+   *
+   * On iOS the plugin never initializes the SDK by itself, so `true` initializes
+   * it now (`ApplicationDelegate.shared.initializeSDK()`, no activation) and
+   * `false` has nothing to switch off. Call it on every launch where
+   * initialization is allowed.
+   *
+   * Use it to withdraw consent: unlike `initAppEvents()`, it can be called with
+   * `false`.
+   */
+  setAutoInitEnabled(options: SetEnabledOptions): Promise<void>;
+
+  /**
+   * Allow or stop the app events the SDK logs by itself (app install and app
+   * activation).
+   *
+   * Sets `FacebookSdk.setAutoLogAppEventsEnabled()` on Android and
+   * `Settings.shared.isAutoLogAppEventsEnabled` on iOS. Both SDKs store the value,
+   * so it overrides `com.facebook.sdk.AutoLogAppEventsEnabled` /
+   * `FacebookAutoLogAppEventsEnabled` on later launches.
+   */
+  setAutoLogAppEventsEnabled(options: SetEnabledOptions): Promise<void>;
+
+  /**
+   * Allow or stop collection of the advertising identifier (the Google
+   * advertising ID on Android, the IDFA on iOS).
+   *
+   * Sets `FacebookSdk.setAdvertiserIDCollectionEnabled()` on Android and
+   * `Settings.shared.isAdvertiserIDCollectionEnabled` on iOS. Both SDKs store the
+   * value. On Android this is the same switch `enableAdvertiserTracking()` and
+   * `disableAdvertiserTracking()` set; on iOS it is separate from advertiser
+   * tracking, which iOS 17 and above read from App Tracking Transparency.
+   */
+  setAdvertiserIDCollectionEnabled(options: SetEnabledOptions): Promise<void>;
 
   /**
    * Returns the platform implementation version marker.

@@ -14,6 +14,9 @@ public class FacebookAnalyticsPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "enableAdvertiserTracking", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "disableAdvertiserTracking", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getAdvertiserTrackingStatus", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setAutoInitEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setAutoLogAppEventsEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setAdvertiserIDCollectionEnabled", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getPluginVersion", returnType: CAPPluginReturnPromise)
     ]
 
@@ -83,6 +86,44 @@ public class FacebookAnalyticsPlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve([
             "status": getAdvertiserTrackingStatus()
         ])
+    }
+
+    @objc func setAutoInitEnabled(_ call: CAPPluginCall) {
+        guard let enabled = call.getBool("enabled") else {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        // The iOS SDK has no automatic initialization for the plugin to switch off: it starts only when asked.
+        guard enabled else {
+            call.resolve()
+            return
+        }
+
+        DispatchQueue.main.async {
+            ApplicationDelegate.shared.initializeSDK()
+            call.resolve()
+        }
+    }
+
+    @objc func setAutoLogAppEventsEnabled(_ call: CAPPluginCall) {
+        guard let enabled = call.getBool("enabled") else {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        Settings.shared.isAutoLogAppEventsEnabled = enabled
+        call.resolve()
+    }
+
+    @objc func setAdvertiserIDCollectionEnabled(_ call: CAPPluginCall) {
+        guard let enabled = call.getBool("enabled") else {
+            call.reject("Must provide enabled")
+            return
+        }
+
+        Settings.shared.isAdvertiserIDCollectionEnabled = enabled
+        call.resolve()
     }
 
     @objc func getPluginVersion(_ call: CAPPluginCall) {
